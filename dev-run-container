@@ -2,7 +2,7 @@
 
 CONTAINER_NAME="docker-reverse-proxy"
 IMAGE_BUILD_TAG=$CONTAINER_NAME
-RUN_OPTIONS="--network=host"
+RUN_OPTIONS="--network=host --env=PROUT=salut"
 DOCKERFILE_CONTEXT="."
 
 docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME
