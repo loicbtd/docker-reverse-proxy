@@ -9,5 +9,3 @@ RUN \
 COPY root/ /
 
 EXPOSE 80 443
-
-ENTRYPOINT ["/entrypoint/start"]
