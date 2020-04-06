@@ -6,6 +6,8 @@ PATH_FILE_DHPARAMS=$PATH_DIR_KEYS/dhparams.pem
 PATH_FILE_SSL_CERTIFICATE_KEY=$PATH_DIR_KEYS/ssl_certificate_key.pem
 PATH_FILE_SSL_CERTIFICATE=$PATH_DIR_KEYS/ssl_certificate.pem
 
+mkdir -p /config/nginx/keys
+
 if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
     printf "Diffie-Hellman parameters file not found... Generating a new one... This might take a while...\n"
     openssl dhparam -out $PATH_FILE_DHPARAMS 512
