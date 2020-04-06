@@ -1,7 +1,36 @@
 {
-    "domain_list": [
+    "proxy_conf_list": [
         {
-            "domain": "subdomain.domain.com"
+            "server_name": "subdomain0.domain0.com",
+            "root_location" : {
+                "proxy_pass": "http://127.0.0.1:80"
+            },
+            "subfolder_location_list": [
+                {
+                    "subfolder": "service-0",
+                    "proxy_pass": "http://127.0.0.1:8001"
+                },
+                {
+                    "subfolder": "service-1",
+                    "proxy_pass": "http://127.0.0.1:8002"
+                }
+            ]
+        },
+        {
+            "server_name": "subdomain1.domain1.com",
+            "root_location" : {
+                "proxy_pass": "http://127.0.0.1:80"
+            },
+            "subfolder_location_list": [
+                {
+                    "subfolder": "service-0",
+                    "proxy_pass": "http://127.0.0.1:8001"
+                },
+                {
+                    "subfolder": "service-1",
+                    "proxy_pass": "http://127.0.0.1:8002"
+                }
+            ]
         }
     ]
 }

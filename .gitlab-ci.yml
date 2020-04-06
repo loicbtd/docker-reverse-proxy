@@ -11,7 +11,4 @@ deploy:
   only:
     - deploy
   script:
-    - docker build --tag=reverse-proxy .
-    - (docker stop reverse-proxy && docker rm reverse-proxy) || echo "No old containers detected"
-    - docker run --detach --name=reverse-proxy --restart=always --network=host reverse-proxy
-    - docker rmi $(docker images -f "dangling=true" -q) || echo "No old images detected"
+    - ./dev-run-container
