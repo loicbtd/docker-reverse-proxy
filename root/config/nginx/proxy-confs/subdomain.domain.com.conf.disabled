@@ -4,10 +4,10 @@ server {
     listen [::]:443 ssl; # listen iPv6
 
     # handle specific domain name
-    server_name *; 
+    server_name cloud.homebert.fr; 
 
     # configure ssl with defaut parameters
-    include /etc/ngix/ssl.conf;
+    include /etc/nginx/ssl.conf;
 
     # handle subfolder /apps
     location /apps {

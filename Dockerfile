@@ -1,13 +1,13 @@
-FROM nginx:1.17.9
+FROM loicbtd/baseimage:latest
 
-RUN rm /etc/nginx/conf.d/*.conf
-RUN rm /etc/nginx/nginx.conf
+RUN \
+    echo "**** install packages ****" && \
+        apk --no-cache add --update \
+            openssl \
+            nginx
 
 COPY root/ /
 
-VOLUME /config
+EXPOSE 80 443
 
-EXPOSE 80
-EXPOSE 443
-STOPSIGNAL SIGTERM
-CMD ["nginx"]
+ENTRYPOINT ["/entrypoint/start"]

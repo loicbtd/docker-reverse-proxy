@@ -1,0 +1,12 @@
+#!/bin/sh
+
+CONTAINER_NAME="docker-reverse-proxy"
+IMAGE_BUILD_TAG=$CONTAINER_NAME
+RUN_OPTIONS="--network=host"
+DOCKERFILE_CONTEXT="."
+
+docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME
+docker rmi $(docker images --filter=dangling=true --quiet)
+docker volume rm $(docker volume ls --filter=dangling=true --quiet)
+docker build --pull --tag=$IMAGE_BUILD_TAG $DOCKERFILE_CONTEXT
+docker run --detach --name=$CONTAINER_NAME $RUN_OPTIONS $IMAGE_BUILD_TAG

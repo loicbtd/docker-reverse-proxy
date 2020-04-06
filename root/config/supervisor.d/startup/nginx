@@ -1,0 +1,28 @@
+#!/bin/bash
+
+PATH_DIR_KEYS=/config/nginx/keys
+
+PATH_FILE_DHPARAMS=$PATH_DIR_KEYS/dhparams.pem
+PATH_FILE_SSL_CERTIFICATE_KEY=$PATH_DIR_KEYS/ssl_certificate_key.pem
+PATH_FILE_SSL_CERTIFICATE=$PATH_DIR_KEYS/ssl_certificate.pem
+
+if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
+    printf "Diffie-Hellman parameters file not found... Generating a new one... This might take a while...\n"
+    openssl dhparam -out $PATH_FILE_DHPARAMS 512
+fi
+
+if [ ! -f "$PATH_FILE_SSL_CERTIFICATE_KEY" ] || [ ! -f "$PATH_FILE_SSL_CERTIFICATE" ]; then
+    printf "SSL certificate files not found... Generating a new one... This might take a while...\n"
+    openssl req \
+        -x509 \
+        -nodes \
+        -days 365 \
+        -newkey rsa:2048 \
+        -keyout $PATH_FILE_SSL_CERTIFICATE_KEY \
+        -out $PATH_FILE_SSL_CERTIFICATE\
+        -subj "/C=FR/ST=State/L=Locality/O=Organization/OU=Unit/CN=Name"
+fi
+
+mkdir -p /run/nginx
+
+/bin/sh -c nginx

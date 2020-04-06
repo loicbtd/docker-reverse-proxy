@@ -1,3 +1,3 @@
 # Reverse Proxy
 
-This is a reverse-proxy
+[![Last Version](https://img.shields.io/docker/v/loicbtd/reverse-proxy?sort=date)](https://hub.docker.com/r/loicbtd/reverse-proxy)
