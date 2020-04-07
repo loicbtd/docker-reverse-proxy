@@ -1,0 +1,14 @@
+stages:
+  - deploy
+
+variables:
+    GIT_STRATEGY: clone
+
+deploy:
+  tags:
+    - shell
+  stage: deploy
+  only:
+    - deploy
+  script:
+    - ./dev-run-container
