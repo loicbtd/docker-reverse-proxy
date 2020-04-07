@@ -1,5 +1,6 @@
 import json
 import sys
+import os
 
 SCRIPT_NAME = "generate_proxy_confs"
 
@@ -58,7 +59,6 @@ def get_server_config(server_dict):
     return """
 server {
     listen 443 ssl;
-    listen [::]:443 ssl;
 
     server_name """ + server_dict['server_name'] + """;
 
@@ -93,6 +93,11 @@ def write_certbot_url_params(proxy_confs_dict, path_file_certbot_url_params):
         file.write('"\n')
 
 
+def create_letsencrypt_directories(proxy_confs_dict):
+    for server_dict in proxy_confs_dict['proxy_conf_list']:
+        os.makedirs("/etc/letsencrypt/live/" + server_dict['server_name'])
+
+
 def stop_with_error(error_message):
     print(error_message)
     exit(1)
@@ -110,6 +115,7 @@ def start():
         proxy_confs = get_dict_from_json_file(sys.argv[3])
         write_proxy_confs_files(proxy_confs, path_dir_proxy_confs)
         write_certbot_url_params(proxy_confs, path_file_certbot_url_params)
+        create_letsencrypt_directories(proxy_confs)
         stop()
     stop_with_error("invalid arguments")
 

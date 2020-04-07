@@ -3,6 +3,7 @@
 PATH_DIR_KEYS=/config/nginx/keys
 PATH_DIR_PROXY_CONFS=/config/nginx/proxy-confs
 PATH_DIR_NGINX_PID=/run/nginx
+PATH_DIR_LETSENCRYPT_LIVE=/etc/letsencrypt/live
 PATH_FILE_CONFIG_SOURCE=/config/nginx/proxy-confs.json
 PATH_FILE_CERTBOT_URL_PARAMS=/config/nginx/url-params
 
@@ -10,31 +11,48 @@ PATH_FILE_DHPARAMS=$PATH_DIR_KEYS/dhparams.pem
 PATH_FILE_SSL_CERTIFICATE_KEY=$PATH_DIR_KEYS/ssl_certificate_key.pem
 PATH_FILE_SSL_CERTIFICATE=$PATH_DIR_KEYS/ssl_certificate.pem
 
+
 mkdir -p $PATH_DIR_NGINX_PID $PATH_DIR_KEYS $PATH_DIR_PROXY_CONFS
 
-
+# Get proxy-confs.json
 if [ "$NGINX_CONFIG_MODE" = "var" ]; then
     echo "**** get proxy-confs from env ****"
     touch $PATH_FILE_CONFIG_SOURCE
     echo "$NGINX_CONFIG_SOURCE" > $PATH_FILE_CONFIG_SOURCE
 fi
-
 if [[ "$NGINX_CONFIG_MODE" == "git"* ]]; then
     mkdir -p /tmp/git/proxy-confs
     cd /tmp/git/proxy-confs
     git init
     if [ "$NGINX_CONFIG_MODE" = "gitlab" ]; then
         echo "**** get proxy-confs from gitlab ****"
-        git pull https://oauth2:$GIT_TOKEN@$GIT_HOST/$GIT_USERNAME/$GIT_REPOSITORY.git
+        pv -p | git pull https://oauth2:$GIT_TOKEN@$GIT_HOST/$GIT_USERNAME/$GIT_REPOSITORY.git
     fi
     cp ./proxy-confs.json $PATH_FILE_CONFIG_SOURCE
     rm -rf /tmp/git/proxy-confs
 fi
 
+# Generate nginx proxy-confs from proxy-confs.json + the URL_PARAMS export file
 echo "**** generate proxy-confs ****"
 python3 /tools/generate_proxy_confs.py "$PATH_DIR_PROXY_CONFS" "$PATH_FILE_CERTBOT_URL_PARAMS" "$PATH_FILE_CONFIG_SOURCE"
 
-echo "**** generate ssl certificates ****"
+# Export URL_PARAMS from generated file
+echo "**** export url parameters ****"
+echo $PATH_FILE_CERTBOT_URL_PARAMS
+source $PATH_FILE_CERTBOT_URL_PARAMS
+
+# Generate DH parameters
+echo "**** generate Diffie-Hellman parameters ****"
+if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
+    echo "Creating DH parameters for additional security. This may take a very long time. There will be another message once this process is completed"
+    openssl dhparam -out $PATH_FILE_DHPARAMS $NGINX_KEY_SIZE
+    echo "DH parameters successfully created - $NGINX_KEY_SIZE bits"
+else
+    echo "$NGINX_KEY_SIZE bit DH parameters present"
+fi
+
+# Define the acme server 
+echo "**** define ACME server ****"
 if [ "$NGINX_GEN_VALID_SSL_CERT" = "false" ]; then
     echo "NOTICE: Staging is active"
     ACMESERVER="https://acme-staging-v02.api.letsencrypt.org/directory"
@@ -42,14 +60,8 @@ else
     ACMESERVER="https://acme-v02.api.letsencrypt.org/directory"
 fi
 
-if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
-    echo "Creating Diffie-Hellman parameters for additional security. This may take a very long time. There will be another message once this process is completed"
-    openssl dhparam -out $PATH_FILE_DHPARAMS $NGINX_KEY_SIZE
-    echo "DH parameters successfully created - $NGINX_KEY_SIZE bits"
-else
-    echo "$NGINX_KEY_SIZE bit DH parameters present"
-fi
-
+# Define the email parameter for certbot command
+echo "**** define email parameter ****"
 if [[ $NGINX_CERT_EMAIL == *@* ]]; then
   echo "E-mail address entered: ${NGINX_CERT_EMAIL}"
   EMAILPARAM="-m ${NGINX_CERT_EMAIL} --no-eff-email"
@@ -58,17 +70,35 @@ else
   EMAILPARAM="--register-unsafely-without-email"
 fi
 
-# export URL_PARAMS from generated file
-source $PATH_FILE_CERTBOT_URL_PARAMS
 
+# Generate Let's Encrypt certificate
+echo "**** generate Let's Encrypt certificate ****"
 if [ ! -f "$PATH_FILE_SSL_CERTIFICATE_KEY" ] || [ ! -f "$PATH_FILE_SSL_CERTIFICATE" ]; then
     echo "Generating new certificate"
-    if supervisorctl status | grep nginx | grep  RUNNING > /dev/null; then supervisorctl stop nginx; fi;
-    sleep 1
-    command="certbot certonly --renew-by-default --server $ACMESERVER --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 $EMAILPARAM --agree-tos $URL_PARAMS"
-    echo $command
-    $command
-    if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
+    cd /etc/letsencrypt
+    certbot certonly --renew-by-default --server $ACMESERVER --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 $EMAILPARAM --agree-tos $URL_PARAMS
 else
     echo "Certificate exists; parameters unchanged; starting nginx"
 fi
+
+# Check and repair missing Let's Encrypt certificates
+for directory in $PATH_DIR_LETSENCRYPT_LIVE/*; do
+    if [ ! -f "$directory/fullchain.pem" ] || [ ! -f "$directory/privkey.pem" ] ; then
+        echo "WARNING: $(basename $directory) has no certicate... Generating a self-signed one"
+        openssl req \
+            -x509 \
+            -nodes \
+            -days 1 \
+            -newkey rsa:4096 \
+            -keyout $directory/privkey.pem \
+            -out $directory/fullchain.pem \
+            -subj "/C=FR/ST=State/L=Location/O=Organization/OU=Unit/CN=Name"
+    fi
+done
+
+
+# if supervisorctl status | grep nginx | grep  RUNNING > /dev/null; then supervisorctl stop nginx; fi;
+
+# certbot -n renew
+# if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
+
