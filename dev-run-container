@@ -2,11 +2,19 @@
 
 CONTAINER_NAME="docker-reverse-proxy"
 IMAGE_BUILD_TAG=$CONTAINER_NAME
-RUN_OPTIONS="--network=host --env=PROUT=salut"
 DOCKERFILE_CONTEXT="."
+SOURCE="$(cat ./proxy-confs.json)"
 
-docker stop $CONTAINER_NAME && docker rm $CONTAINER_NAME
+docker stop --time=0 $CONTAINER_NAME && docker rm --force $CONTAINER_NAME
 docker rmi $(docker images --filter=dangling=true --quiet)
 docker volume rm $(docker volume ls --filter=dangling=true --quiet)
 docker build --pull --tag=$IMAGE_BUILD_TAG $DOCKERFILE_CONTEXT
-docker run --detach --name=$CONTAINER_NAME $RUN_OPTIONS $IMAGE_BUILD_TAG
+docker run --detach --name=$CONTAINER_NAME --network=host \
+    --env=NGINX_CONFIG_SOURCE="$SOURCE" \
+    --env=NGINX_KEY_SIZE=1024 \
+    --env=NGINX_CONFIG_MODE=var \
+    --env=GIT_HOST=gitlab.com \
+    --env=GIT_TOKEN=3_da3oGLtEVyjy17s7Di \
+    --env=GIT_USERNAME=loicbtd \
+    --env=GIT_REPOSITORY=reverse-proxy-confs \
+    $IMAGE_BUILD_TAG
