@@ -94,6 +94,12 @@ def write_certbot_url_params(proxy_confs_dict, path_file_certbot_url_params):
         file.write('"\n')
 
 
+def create_supported_fomains_file(proxy_confs_dict):
+    with open("/config/nginx/supported_domains", 'w') as file:
+        for server_dict in proxy_confs_dict['proxy_conf_list']:
+            file.write(server_dict['server_name'] + "\n")
+
+
 def stop_with_error(error_message):
     print(error_message)
     exit(1)
@@ -111,6 +117,7 @@ def start():
         proxy_confs = get_dict_from_json_file(sys.argv[3])
         write_proxy_confs_files(proxy_confs, path_dir_proxy_confs)
         write_certbot_url_params(proxy_confs, path_file_certbot_url_params)
+        create_supported_fomains_file(proxy_confs)
         stop()
     stop_with_error("invalid arguments")
 
