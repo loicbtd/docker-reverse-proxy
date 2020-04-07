@@ -30,8 +30,11 @@ if [[ "$NGINX_CONFIG_MODE" == "git"* ]]; then
     rm -rf /tmp/git/proxy-confs
 fi
 
+echo "**** generate proxy-confs ****"
+python3 /tools/generate_proxy_confs.py "$PATH_DIR_PROXY_CONFS" "$PATH_FILE_CONFIG_SOURCE"
+
 if [ "$NGINX_GEN_VALID_SSL_CERT" = "false" ]; then
-    echo "**** generate self-signed ssl certificates ****"
+    echo "**** generate staging ssl certificates ****"
     if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
         printf "Diffie-Hellman parameters file not found... Generating a new one... This might take a while...\n"
         openssl dhparam -out $PATH_FILE_DHPARAMS $NGINX_KEY_SIZE
@@ -49,11 +52,10 @@ if [ "$NGINX_GEN_VALID_SSL_CERT" = "false" ]; then
             -subj "/C=$NGINX_CERT_COUTRY/ST=$NGINX_CERT_STATE/L=$NGINX_CERT_LOCALITY/O=$NGINX_CERT_ORGANIZATION/OU=$NGINX_CERT_UNIT/CN=$NGINX_CERT_NAME"
     fi
 else
-    echo "CERT IS NOT AVAILABLE YET !" # TODO : handle certs
+    echo "**** generate Let's Encrypt certificates ****"
+    echo "CERTS ARE NOT AVAILABLE YET !" # TODO : handle certs
 fi
 
 
-echo "**** generate proxy-confs ****"
-python3 /tools/generate_proxy_confs.py "$PATH_DIR_PROXY_CONFS" "$PATH_FILE_CONFIG_SOURCE"
 
-nginx
+certbot certonly --renew-by-default --server https://acme-staging-v02.api.letsencrypt.org/directory --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 --register-unsafely-without-email --agree-tos -d cloud.homebert.fr

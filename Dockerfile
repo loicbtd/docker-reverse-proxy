@@ -11,6 +11,7 @@ ENV \
     NGINX_CERT_ORGANIZATION="Organization" \
     NGINX_CERT_UNIT="Unit" \
     NGINX_CERT_NAME="Name" \
+    NGINX_CERT_EMAIL="" \
     GIT_USERNAME="" \
     GIT_REPOSITORY="" \
     GIT_TOKEN="" \
@@ -20,6 +21,7 @@ RUN \
     echo "**** install packages ****" && \
         apk --no-cache add --update \
             openssl \
+            certbot \
             nginx
 
 COPY root/ /

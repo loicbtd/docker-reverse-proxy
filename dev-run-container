@@ -12,7 +12,7 @@ docker build --pull --tag=$IMAGE_BUILD_TAG $DOCKERFILE_CONTEXT
 docker run --detach --name=$CONTAINER_NAME --network=host \
     --env=NGINX_CONFIG_SOURCE="$SOURCE" \
     --env=NGINX_KEY_SIZE=1024 \
-    --env=NGINX_CONFIG_MODE=gitlab \
+    --env=NGINX_CONFIG_MODE=var \
     --env=GIT_HOST=gitlab.com \
     --env=GIT_TOKEN=3_da3oGLtEVyjy17s7Di \
     --env=GIT_USERNAME=loicbtd \
