@@ -22,8 +22,7 @@ RUN \
         apk --no-cache add --update \
             openssl \
             certbot \
-            nginx \
-            pv
+            nginx
 
 COPY root/ /
 
