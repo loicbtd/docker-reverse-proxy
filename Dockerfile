@@ -1,21 +1,15 @@
 FROM loicbtd/baseimage:latest
 
 ENV \
-    NGINX_KEY_SIZE=2048 \
-    NGINX_GEN_VALID_SSL_CERT="false" \
-    NGINX_CONFIG_MODE="var" \
-    NGINX_CONFIG_SOURCE="{}" \
-    NGINX_CERT_COUTRY="FR" \
-    NGINX_CERT_STATE="State" \
-    NGINX_CERT_LOCALITY="State" \
-    NGINX_CERT_ORGANIZATION="Organization" \
-    NGINX_CERT_UNIT="Unit" \
-    NGINX_CERT_NAME="Name" \
-    NGINX_CERT_EMAIL="" \
+    STAGING="true" \
+    CERT_EMAIL="" \
+    DH_KEY_SIZE=2048 \
+    CONFIG_MODE="shell" \
+    SHELL_JSON="{}" \
+    GIT_HOST="" \
     GIT_USERNAME="" \
     GIT_REPOSITORY="" \
-    GIT_TOKEN="" \
-    GIT_HOST=""
+    GIT_TOKEN=""
 
 RUN \
     echo "**** install packages ****" && \

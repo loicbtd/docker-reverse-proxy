@@ -59,3 +59,12 @@ fi
 
 
 certbot certonly --renew-by-default --server https://acme-staging-v02.api.letsencrypt.org/directory --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 --register-unsafely-without-email --agree-tos -d cloud.homebert.fr
+
+
+
+for directory in
+if openssl x509 -in ./fullchain.pem -noout -checkend $((60 * 60 * 48)) > /dev/null; then
+    printf "\n\nPASS\n\n"
+else
+    printf "\n\nRENIEW\n\n"
+fi

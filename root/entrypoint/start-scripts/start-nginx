@@ -21,21 +21,21 @@ echo "**** create configuration directories ****"
 mkdir -p $PATH_DIR_NGINX_PID $PATH_DIR_KEYS $PATH_DIR_PROXY_CONFS
 
 # Get proxy-confs.json
-if [ "$NGINX_CONFIG_MODE" = "var" ]; then
+if [ "$CONFIG_MODE" = "shell" ]; then
     echo "**** get proxy-confs from env ****"
     touch $PATH_FILE_CONFIG_SOURCE
-    echo "$NGINX_CONFIG_SOURCE" > $PATH_FILE_CONFIG_SOURCE
+    echo "$SHELL_JSON" > $PATH_FILE_CONFIG_SOURCE
 fi
-if [[ "$NGINX_CONFIG_MODE" == "git"* ]]; then
+if [[ "$CONFIG_MODE" == "git"* ]]; then
     mkdir -p /tmp/git/proxy-confs
     cd /tmp/git/proxy-confs
     git init
-    if [ "$NGINX_CONFIG_MODE" = "gitlab" ]; then
+    if [ "$CONFIG_MODE" = "gitlab" ]; then
         echo "**** get proxy-confs from gitlab ****"
         pv -p | git pull https://oauth2:$GIT_TOKEN@$GIT_HOST/$GIT_USERNAME/$GIT_REPOSITORY.git
     fi
     cp ./proxy-confs.json $PATH_FILE_CONFIG_SOURCE
-    rm -rf /tmp/git/proxy-confs
+    rm -rf /tmp/git
 fi
 
 # Generate nginx proxy-confs from proxy-confs.json + the URL_PARAMS export file
@@ -51,15 +51,15 @@ source $PATH_FILE_CERTBOT_URL_PARAMS
 echo "**** generate Diffie-Hellman parameters ****"
 if [ ! -f "$PATH_FILE_DHPARAMS" ]; then
     echo "Creating DH parameters for additional security. This may take a very long time. There will be another message once this process is completed"
-    openssl dhparam -out $PATH_FILE_DHPARAMS $NGINX_KEY_SIZE
-    echo "DH parameters successfully created - $NGINX_KEY_SIZE bits"
+    openssl dhparam -out $PATH_FILE_DHPARAMS $DH_KEY_SIZE
+    echo "DH parameters successfully created - $DH_KEY_SIZE bits"
 else
-    echo "$NGINX_KEY_SIZE bit DH parameters present"
+    echo "$DH_KEY_SIZE bit DH parameters present"
 fi
 
 # Define the acme server 
 echo "**** define ACME server ****"
-if [ "$NGINX_GEN_VALID_SSL_CERT" = "false" ]; then
+if [ "$STAGING" = "true" ]; then
     echo "NOTICE: Staging is active"
     ACMESERVER="https://acme-staging-v02.api.letsencrypt.org/directory"
 else
@@ -68,9 +68,9 @@ fi
 
 # Define the email parameter for certbot command
 echo "**** define email parameter ****"
-if [[ $NGINX_CERT_EMAIL == *@* ]]; then
-  echo "E-mail address entered: ${NGINX_CERT_EMAIL}"
-  EMAILPARAM="-m ${NGINX_CERT_EMAIL} --no-eff-email"
+if [[ $CERT_EMAIL == *@* ]]; then
+  echo "E-mail address entered: ${CERT_EMAIL}"
+  EMAILPARAM="-m ${CERT_EMAIL} --no-eff-email"
 else
   echo "No e-mail address entered or address invalid"
   EMAILPARAM="--register-unsafely-without-email"
@@ -114,6 +114,6 @@ done
 
 # if supervisorctl status | grep nginx | grep  RUNNING > /dev/null; then supervisorctl stop nginx; fi;
 
-# certbot -n renew
+certbot -n renew
 # if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
 
