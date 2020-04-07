@@ -17,4 +17,5 @@ docker run --detach --name=$CONTAINER_NAME --network=host \
     --env=GIT_TOKEN=3_da3oGLtEVyjy17s7Di \
     --env=GIT_USERNAME=loicbtd \
     --env=GIT_REPOSITORY=reverse-proxy-confs \
+    --env=NGINX_GEN_VALID_SSL_CERT=true \
     $IMAGE_BUILD_TAG
