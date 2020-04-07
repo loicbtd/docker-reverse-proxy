@@ -65,20 +65,9 @@ if [ ! -f "$PATH_FILE_SSL_CERTIFICATE_KEY" ] || [ ! -f "$PATH_FILE_SSL_CERTIFICA
     echo "Generating new certificate"
     if supervisorctl status | grep nginx | grep  RUNNING > /dev/null; then supervisorctl stop nginx; fi;
     sleep 1
-    command="certbot certonly \
-        --renew-by-default \
-        --server $ACMESERVER \
-        --non-interactive \
-        --standalone \
-        --preferred-challenges http \
-        --rsa-key-size 4096 \
-        $EMAILPARAM \
-        --agree-tos \
-        $URL_PARAMS"
+    command="certbot certonly --renew-by-default --server $ACMESERVER --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 $EMAILPARAM --agree-tos $URL_PARAMS"
     echo $command
-
     $command
-
     if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
 else
     echo "Certificate exists; parameters unchanged; starting nginx"
