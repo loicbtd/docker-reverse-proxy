@@ -63,6 +63,8 @@ source $PATH_FILE_CERTBOT_URL_PARAMS
 
 if [ ! -f "$PATH_FILE_SSL_CERTIFICATE_KEY" ] || [ ! -f "$PATH_FILE_SSL_CERTIFICATE" ]; then
     echo "Generating new certificate"
+    if supervisorctl status | grep nginx | grep  RUNNING > /dev/null; then supervisorctl stop nginx; fi;
+    sleep 1
     command="certbot certonly \
         --renew-by-default \
         --server $ACMESERVER \
@@ -76,7 +78,8 @@ if [ ! -f "$PATH_FILE_SSL_CERTIFICATE_KEY" ] || [ ! -f "$PATH_FILE_SSL_CERTIFICA
     echo $command
 
     $command
-    
+
+    if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
 else
     echo "Certificate exists; parameters unchanged; starting nginx"
 fi

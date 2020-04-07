@@ -63,6 +63,10 @@ server {
     server_name """ + server_dict['server_name'] + """;
 
     include /etc/nginx/ssl.conf;
+    ssl_certificate /etc/letsencrypt/live/""" + server_dict['server_name'] + """/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/""" + server_dict['server_name'] + """/privkey.pem;
+
+    
     root /config/nginx/root;
     include /etc/nginx/error.conf;
 
