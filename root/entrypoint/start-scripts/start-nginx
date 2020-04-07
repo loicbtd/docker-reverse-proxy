@@ -82,16 +82,16 @@ else
 fi
 
 # Check and repair missing Let's Encrypt certificates
-for directory in $PATH_DIR_LETSENCRYPT_LIVE/*; do
-    if [ ! -f "$directory/fullchain.pem" ] || [ ! -f "$directory/privkey.pem" ] ; then
-        echo "WARNING: $(basename $directory) has no certicate... Generating a self-signed one"
+for dir_live in $PATH_DIR_LETSENCRYPT_LIVE/*; do
+    if [ ! -f "$dir_live/fullchain.pem" ] || [ ! -f "$dir_live/privkey.pem" ] ; then
+        echo "WARNING: $(basename $dir_live) has no certicate... Generating a self-signed one"
         openssl req \
             -x509 \
             -nodes \
             -days 1 \
             -newkey rsa:4096 \
-            -keyout $directory/privkey.pem \
-            -out $directory/fullchain.pem \
+            -keyout $dir_live/privkey.pem \
+            -out $dir_live/fullchain.pem \
             -subj "/C=FR/ST=State/L=Location/O=Organization/OU=Unit/CN=Name"
     fi
 done
