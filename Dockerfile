@@ -11,7 +11,7 @@ ENV \
 
 RUN \
     echo "**** install packages ****" && \
-        apk add --no-cache \
+        apk add --update --no-cache \
             openssl \
             certbot \
             nginx && \
