@@ -62,9 +62,3 @@ certbot certonly --renew-by-default --server https://acme-staging-v02.api.letsen
 
 
 
-for directory in
-if openssl x509 -in ./fullchain.pem -noout -checkend $((60 * 60 * 48)) > /dev/null; then
-    printf "\n\nPASS\n\n"
-else
-    printf "\n\nRENIEW\n\n"
-fi

@@ -13,7 +13,7 @@ docker run --detach --name=$CONTAINER_NAME --network=host \
     --env=STAGING="true" \
     --env=CERT_EMAIL="" \
     --env=DH_KEY_SIZE=1024 \
-    --env=CONFIG_MODE="shell" \
+    --env=CONFIG_MODE="gitlab" \
     --env=SHELL_JSON="$JSON" \
     --env=GIT_HOST="gitlab.com" \
     --env=GIT_USERNAME="loicbtd" \

@@ -2,8 +2,6 @@ import json
 import sys
 import os
 
-SCRIPT_NAME = "generate_proxy_confs"
-
 
 def get_dict_from_json_file(path_json):
     with open(path_json) as file_json:
@@ -106,11 +104,18 @@ def stop_with_error(error_message):
 
 
 def stop():
-    print(SCRIPT_NAME + " performed its duty successfully.")
+    print("The script performed its duty successfully.")
     exit(0)
 
 
 def start():
+    # get reverse-proxy
+    # get reverse-proxy lock
+    # compare
+    # if no difference, exit
+    # generate nginx-proxy-confs
+    # generate dhparams generator
+    # generate letsencrypt generators
     if len(sys.argv) == 4:
         path_dir_proxy_confs = sys.argv[1]
         path_file_certbot_url_params = sys.argv[2]

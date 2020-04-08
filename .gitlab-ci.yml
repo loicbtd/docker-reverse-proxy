@@ -9,6 +9,6 @@ deploy:
     - shell
   stage: deploy
   only:
-    - deploy
+    - master
   script:
     - ./dev-run-container

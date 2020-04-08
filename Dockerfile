@@ -1,11 +1,9 @@
 FROM loicbtd/baseimage:latest
 
 ENV \
-    STAGING="true" \
-    CERT_EMAIL="" \
-    DH_KEY_SIZE=2048 \
     CONFIG_MODE="shell" \
     SHELL_JSON="{}" \
+    GIT_UPDATE_FREQUENCY=0 \
     GIT_HOST="" \
     GIT_USERNAME="" \
     GIT_REPOSITORY="" \
