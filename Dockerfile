@@ -12,11 +12,6 @@ ENV \
 RUN \
     echo "**** install packages ****" && \
         apk add --no-cache \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/main \
-            --repository http://dl-cdn.alpinelinux.org/alpine/edge/community \
-            --repository https://ftp.halifax.rwth-aachen.de/alpine/edge/main \
-            --repository https://ftp.halifax.rwth-aachen.de/alpine/edge/community &&\
-        apk --no-cache add --update \
             openssl \
             certbot \
             nginx && \
