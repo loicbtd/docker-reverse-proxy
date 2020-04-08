@@ -1,0 +1,20 @@
+#!/bin/bash 
+
+echo "NOTICE: check for reverse-proxy updates"
+echo "NOTICE: starting reverse_proxy_manager.py"
+python3 /app/reverse-proxy/reverse_proxy_manager.py
+
+echo "NOTICE: applying DH param configuration"
+chmod +x /app/reverse-proxy/generated/dhparam/generate-dhparam
+/app/reverse-proxy/generated/dhparam/generate-dhparam
+
+echo "NOTICE: applying nginx configuration"
+for generator in /app/reverse-proxy/generated/letsencrypt/generate-*; do
+    chmod +x "$generator"
+    "$generator"
+done
+
+
+
+echo "NOTICE: making sure nginx is started"
+if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;

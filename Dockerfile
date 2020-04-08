@@ -14,7 +14,12 @@ RUN \
         apk --no-cache add --update \
             openssl \
             certbot \
-            nginx
+            nginx && \
+        pip3 install --upgrade pip && \
+        pip3 install \
+            jsonschema \
+            deepdiff
+        
 
 COPY root/ /
 

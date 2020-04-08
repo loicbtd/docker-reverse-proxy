@@ -7,7 +7,11 @@ mkdir -p \
     /run/nginx \
     /etc/letsencrypt \
     /etc/nginx/ssl \
-    /config/nginx/
+    /etc/nginx/proxy-confs \
+    /app/reverse-proxy/generated/dhparam \
+    /app/reverse-proxy/generated/letsencrypt \
+    /config/custom-certificates \
+    /config/nginx
 
 if [ -f $PATH_FILE_REVERSE_PROXY ]; then rm $PATH_FILE_REVERSE_PROXY; fi
 if [ "$CONFIG_MODE" = "shell" ]; then
@@ -16,8 +20,8 @@ if [ "$CONFIG_MODE" = "shell" ]; then
     echo "$SHELL_JSON" > $PATH_FILE_REVERSE_PROXY
 fi
 if [[ "$CONFIG_MODE" == "git"* ]]; then
-    mkdir -p /tmp/git/proxy-confs
-    cd /tmp/git/proxy-confs
+    mkdir -p /tmp/git/old
+    cd /tmp/git/old
     git init
     if [ "$CONFIG_MODE" = "gitlab" ]; then
         echo "NOTICE: getting reverse-proxy.json from gitlab"
@@ -32,8 +36,14 @@ if [[ "$CONFIG_MODE" == "git"* ]]; then
 fi
 
 echo "NOTICE: starting reverse_proxy_manager.py"
-python3 /app/generate_proxy_confs.py
+python3 /app/reverse-proxy/reverse_proxy_manager.py
 
-echo "NOTICE: applying configuration"
-/app/generated/dhparams/generate_dhparams
-/app/generated/letsencrypt/*
+echo "NOTICE: applying DH param configuration"
+chmod +x /app/reverse-proxy/generated/dhparam/generate-dhparam
+/app/reverse-proxy/generated/dhparam/generate-dhparam
+
+echo "NOTICE: applying nginx configuration"
+for generator in /app/reverse-proxy/generated/letsencrypt/generate-*; do
+    chmod +x "$generator"
+    "$generator"
+done

@@ -3,20 +3,17 @@
 CONTAINER_NAME="docker-reverse-proxy"
 IMAGE_BUILD_TAG=$CONTAINER_NAME
 DOCKERFILE_CONTEXT="."
-JSON="$(cat ./proxy-confs.json)"
+JSON="$(cat ./reverse-proxy.json)"
 
 docker stop --time=0 $CONTAINER_NAME && docker rm --force $CONTAINER_NAME
 docker rmi $(docker images --filter=dangling=true --quiet)
 docker volume rm $(docker volume ls --filter=dangling=true --quiet)
 docker build --pull --tag=$IMAGE_BUILD_TAG $DOCKERFILE_CONTEXT
 docker run --detach --name=$CONTAINER_NAME --network=host \
-    --env=STAGING="true" \
-    --env=CERT_EMAIL="" \
-    --env=DH_KEY_SIZE=1024 \
-    --env=CONFIG_MODE="gitlab" \
+    --env=CONFIG_MODE="shell" \
     --env=SHELL_JSON="$JSON" \
-    --env=GIT_HOST="gitlab.com" \
-    --env=GIT_USERNAME="loicbtd" \
-    --env=GIT_REPOSITORY="reverse-proxy-confs" \
-    --env=GIT_TOKEN="3_da3oGLtEVyjy17s7Di" \
+    --env=GIT_HOST="" \
+    --env=GIT_USERNAME="" \
+    --env=GIT_REPOSITORY="" \
+    --env=GIT_TOKEN="" \
     $IMAGE_BUILD_TAG

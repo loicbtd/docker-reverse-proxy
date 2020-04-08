@@ -1,0 +1,42 @@
+{
+    "dh_key_size": 1024,
+    "proxy_conf_list": [
+        {
+            "server_name": "example0.com",
+            "certificate": {
+                "provider": "letsencrypt",
+                "data": {
+                    "email": "",
+                    "letsencrypt_staging": true,
+                    "custom_privkey": "",
+                    "custom_fullchain": ""
+                }
+            },
+            "root_location_proxy_pass" : "http://127.0.0.1:8000",
+            "subfolder_location_list": [
+                {
+                    "subfolder": "service0",
+                    "proxy_pass": "http://127.0.0.1:8001"
+                },
+                {
+                    "subfolder": "service1",
+                    "proxy_pass": "http://127.0.0.1:8002"
+                }
+            ]
+        },
+        {
+            "server_name": "example1.com",
+            "certificate": {
+                "provider": "letsencrypt",
+                "data": {
+                    "email": "",
+                    "letsencrypt_staging": true,
+                    "custom_privkey": "",
+                    "custom_fullchain": ""
+                }
+            },
+            "root_location_proxy_pass" : "http://127.0.0.1:9000",
+            "subfolder_location_list": []
+        }
+    ]
+}

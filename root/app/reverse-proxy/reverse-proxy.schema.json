@@ -1,0 +1,64 @@
+{
+    "$schema": "http://json-schema.org/",
+    "title": "Reverse Proxy Schema",
+    "description": "This is a json schema for the loicbtd/reverse-proxy Docker container",
+    "typeOf": "object",
+    "required": ["dh_key_size", "proxy_conf_list"],
+    "properties": {
+
+        "dh_key_size": { "type": "number", "minimum": 512 },
+
+        "proxy_conf_list": {
+            "type": "array",
+            "minLength": 1,
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["server_name", "certificate", "root_location_proxy_pass", "subfolder_location_list"],
+                "properties": {
+
+                    "server_name": { "type": "string" },
+
+                    "certificate": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["provider", "data"],
+                        "properties": {
+                            "provider": { "type":  "string", "enum": ["letsencrypt", "custom"] },
+                            "data" : {
+                                "type": "object",
+                                "additionalProperties": false,
+                                "required": ["email", "letsencrypt_staging", "custom_privkey", "custom_fullchain"],
+                                "properties": {
+                                    "email": { "type": "string"},
+                                    "letsencrypt_staging": { "type": "boolean"},
+                                    "custom_privkey": { "type": "string"},
+                                    "custom_fullchain": { "type": "string"}
+                                }
+                            }
+                        }
+                    },
+
+                    "root_location_proxy_pass": {
+                        "type": "string"
+                    },
+
+                    "subfolder_location_list": {
+                        "type": "array",
+                        "minLength": 0,
+                        "uniqueItems": true,
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                                "subfolder": { "type": "string" },
+                                "proxy_pass": { "type": "string" }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

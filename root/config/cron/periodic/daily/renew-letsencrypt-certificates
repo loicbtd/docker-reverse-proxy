@@ -1,0 +1,10 @@
+#!/bin/bash 
+
+echo "NOTICE: checking nginx validity"
+for generator in /app/reverse-proxy/generated/letsencrypt/generate-*; do
+    chmod +x "$generator"
+    "$generator"
+done
+
+echo "NOTICE: making sure nginx is started"
+if supervisorctl status | grep nginx | grep  STOPPED > /dev/null; then supervisorctl start nginx; fi;
