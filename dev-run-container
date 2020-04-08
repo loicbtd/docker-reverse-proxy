@@ -10,10 +10,10 @@ docker rmi $(docker images --filter=dangling=true --quiet)
 docker volume rm $(docker volume ls --filter=dangling=true --quiet)
 docker build --pull --tag=$IMAGE_BUILD_TAG $DOCKERFILE_CONTEXT
 docker run --detach --name=$CONTAINER_NAME --network=host \
-    --env=CONFIG_MODE="shell" \
+    --env=CONFIG_MODE="gitlab" \
     --env=SHELL_JSON="$JSON" \
-    --env=GIT_HOST="" \
-    --env=GIT_USERNAME="" \
-    --env=GIT_REPOSITORY="" \
-    --env=GIT_TOKEN="" \
+    --env=GIT_HOST="gitlab.com" \
+    --env=GIT_USERNAME="loicbtd" \
+    --env=GIT_REPOSITORY="reverse-proxy-confs" \
+    --env=GIT_TOKEN="t1pN1ZVouUREdsVyg_Ba" \
     $IMAGE_BUILD_TAG

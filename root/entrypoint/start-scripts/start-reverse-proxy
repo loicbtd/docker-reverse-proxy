@@ -32,6 +32,7 @@ if [[ "$CONFIG_MODE" == "git"* ]]; then
         git pull https://x-access-token:$GIT_TOKEN@github.com/$GIT_USERNAME/$GIT_REPOSITORY.git
     fi
     cp ./reverse-proxy.json $PATH_FILE_REVERSE_PROXY
+    cd -
     rm -rf /tmp/git
 fi
 
