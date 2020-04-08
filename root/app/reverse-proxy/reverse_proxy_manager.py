@@ -149,6 +149,7 @@ generate_letsencrypt(){
     if [ staging = "true" ]; then
         echo "WARNING: STAGING=true, generating a fake certificate for $DOMAIN"
     fi
+    mkdir -p $PATH_DIR_LETSENCRYPT_CERTIFICATES
     certbot certonly --server $ACMESERVER --non-interactive --standalone --preferred-challenges http --rsa-key-size 4096 $EMAIL_PARAM --agree-tos -d $DOMAIN
 }
 
