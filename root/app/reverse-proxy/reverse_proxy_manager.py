@@ -17,47 +17,37 @@ PATH_DIR_LETSENCRYPT_CERTIFICATES = "/etc/letsencrypt/live"
 
 
 # BEGIN - tool functions
-def get_root_location_config(root_location_proxy_pass):
+def get_root_location_config(server_name, root_location_proxy_pass):
     return """
     location / {
-        include /etc/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
-        proxy_pass """ + root_location_proxy_pass + """;
-
-        proxy_max_temp_file_size 2048m;
-
-        proxy_set_header Range $http_range;
-        proxy_set_header If-Range $http_if_range;
-        proxy_set_header Connection $http_connection;
-        proxy_redirect off;
-        proxy_ssl_session_reuse off;
+        proxy_pass """ + root_location_proxy_pass + """/;
+        proxy_set_header Accept-Encoding "";
+        sub_filter """ + root_location_proxy_pass + """ https://""" + server_name + """;
+        sub_filter_once off;
     }
 """
 
 
-def get_subfolder_location_config(subfolder_location):
+def get_subfolder_location_config(server_name, subfolder_location):
     return """
-    location /""" + subfolder_location['subfolder'] + """ {
+
+    location /""" + subfolder_location['subfolder'] + """/""" + subfolder_location['subfolder'] + """ {
         return 301 $scheme://$host/""" + subfolder_location['subfolder'] + """/;
     }
 
+    location /""" + subfolder_location['subfolder'] + """ {
+        return 301 $scheme://$host/""" + subfolder_location['subfolder'] + """/;
+    }
+    
     location ^~ /""" + subfolder_location['subfolder'] + """/ {
-        include /etc/nginx/proxy.conf;
-        resolver 127.0.0.11 valid=30s;
-        proxy_pass """ + subfolder_location['proxy_pass'] + """;
-
-        rewrite /""" + subfolder_location['subfolder'] + """(.*) $1 break;
-        proxy_max_temp_file_size 2048m;
-
+        proxy_pass """ + subfolder_location['proxy_pass'] + """/;
         proxy_set_header Accept-Encoding "";
-        sub_filter https://$host https://$host/""" + subfolder_location['subfolder'] + """/;
+        sub_filter 'src="/'  'src="https://""" + server_name +"""/""" + subfolder_location['subfolder'] + """/';
+        sub_filter 'href="/'  'href="https://""" + server_name +"""/""" + subfolder_location['subfolder'] + """/';
+        sub_filter 'icons="/'  'href="https://""" + server_name +"""/""" + subfolder_location['subfolder'] + """/';
+        sub_filter 'action="/'  'action="https://""" + server_name +"""/""" + subfolder_location['subfolder'] + """/';
+        sub_filter """ + subfolder_location['proxy_pass'] + """ https://""" + server_name +"""/""" + subfolder_location['subfolder'] + """;
         sub_filter_once off;
-
-        proxy_set_header Range $http_range;
-        proxy_set_header If-Range $http_if_range;
-        proxy_set_header Connection $http_connection;
-        proxy_redirect off;
-        proxy_ssl_session_reuse off;
     }
 """
 
@@ -81,12 +71,11 @@ server {
     ssl_certificate """ + path_file_fullchain + """;
     ssl_certificate_key """ + path_file_privkey + """;
 
-    root /config/nginx/root;
     include /etc/nginx/error.conf;
 
-    """ + get_root_location_config(server['root_location_proxy_pass']) + """
+    """ + get_root_location_config(server['server_name'], server['root_location_proxy_pass']) + """
 
-    """ + ''.join([get_subfolder_location_config(subfolder_location) for subfolder_location in
+    """ + ''.join([get_subfolder_location_config(server['server_name'], subfolder_location) for subfolder_location in
                    server['subfolder_location_list']]) + """
 }
 """

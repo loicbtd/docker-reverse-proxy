@@ -1,0 +1,43 @@
+        # rewrite /""" + subfolder_location['subfolder'] + """(.*) $1 break;
+        # proxy_max_temp_file_size 2048m;
+
+        proxy_set_header Accept-Encoding "";
+        sub_filter https://$host https://$host/""" + subfolder_location['subfolder'] + """/;
+        sub_filter_once off;
+
+        # proxy_set_header Range $http_range;
+        # proxy_set_header If-Range $http_if_range;
+        # proxy_set_header Connection $http_connection;
+        # proxy_redirect off;
+        # proxy_ssl_session_reuse off;
+
+
+       # proxy_max_temp_file_size 2048m;
+
+        # proxy_set_header Range $http_range;
+        # proxy_set_header If-Range $http_if_range;
+        # proxy_set_header Connection $http_connection;
+        # proxy_redirect off;
+        # proxy_ssl_session_reuse off;
+
+
+    # location /""" + subfolder_location['subfolder'] + """ {
+    #     return 301 $scheme://$host/""" + subfolder_location['subfolder'] + """;
+    # }
+
+
+
+
+
+
+
+
+
+location ^~ /""" + subfolder_location['subfolder'] + """ {
+        rewrite /""" + subfolder_location['subfolder'] + """(.*) /$1/ break;
+        proxy_pass """ + subfolder_location['proxy_pass'] + """/;
+
+        proxy_set_header Accept-Encoding "";
+        sub_filter https://$host https://$host/""" + subfolder_location['subfolder'] + """/;
+        sub_filter_once off;
+    }
