@@ -13,9 +13,7 @@ RUN \
     echo "**** install packages ****" && \
         apk add --update --no-cache \
             openssl \
-            certbot \
             nginx && \
-        pip3 install --upgrade pip && \
         pip3 install \
             jsonschema \
             deepdiff
